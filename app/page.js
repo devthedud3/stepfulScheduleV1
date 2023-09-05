@@ -1,95 +1,155 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import { useEffect, useState } from "react";
+
+import { Calendar } from "./components/calender/Calendar.component";
+
+import styles from "./page.module.css";
+import { Form } from "./components/form/Form.component";
 
 export default function Home() {
+  const [data, setData] = useState([]);
+  const [showNewCoachForm, setShowForm] = useState(false);
+  const [user, setUser] = useState({
+    selected: "1",
+    selectedCoach: "0",
+    selectedDate: ""
+  });
+
+  const getData = async () => {
+    const res = await fetch("/api/users");
+    const { users } = await res.json();
+    setData(users);
+  };
+
+  const userData = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+  };
+
+  const setSelectedDate = (e) => {
+    setUser({ ...user, selectedDate: e });
+  };
+
+  const setCoachAvailability = async (e) => {
+    e.preventDefault();
+    if (!user.selectedDate) {
+      return;
+    }
+
+    data[user.selectedCoach]?.schedule.push(user.selectedDate);
+
+    try {
+      await fetch("/api/users", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data[user.selectedCoach])
+      });
+    } catch (err) {
+      console.log("Check Page::handleSubmit");
+    }
+  };
+
+  const handleShowForm = () => {
+    setShowForm(!showNewCoachForm);
+  };
+
+  useEffect(async () => {
+    getData();
+  }, []);
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <section className={styles.section}>
+        <h1 className={styles.headlineText}>Meeting scheduler</h1>
+      </section>
+      <h3 className={styles.label}>Select your account type</h3>
+      <section className={styles.section}>
+        <select className={styles.options} name="selected" onChange={userData}>
+          <option value="0">Student</option>
+          <option value="1">Coach</option>
+        </select>
+      </section>
+      {user.selected === "0" ? (
+        <>
+          <section>
+            <h3 className={styles.label}>Select a coach to meet with</h3>
+            {data.map((e, idx) => {
+              const i = idx.toString();
+              return (
+                <div className={styles.radioContainer}>
+                  <input
+                    className={styles.selection}
+                    type="radio"
+                    value={i}
+                    name="selectedCoach"
+                    onChange={userData}
+                    checked={user.selectedCoach === i}
+                  />
+                  <p>
+                    Mr. {e.firstname} {e.lastname}
+                  </p>{" "}
+                </div>
+              );
+            })}
+          </section>
+          <div className={styles.scheduleContainer}>
+            <section className={styles.calender}>
+              <h3 className={styles.label}>Availability</h3>
+              <Calendar
+                handleClick={setSelectedDate}
+                value={user.selectedDate}
+              />
+            </section>
+            <section className={styles.schedule}>
+              <h3 className={styles.label}>Time slots</h3>
+              <div></div>
+            </section>
+          </div>
+          <button
+            className={styles.btn}
+            type="button"
+            onClick={setCoachAvailability}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+            Book Appointment
+          </button>
+        </>
+      ) : (
+        <>
+          <section>
+            <h3 className={styles.label}>Select your name from the menu</h3>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+            {data.map((e, idx) => {
+              const i = idx.toString();
+              return (
+                <div className={styles.radioContainer}>
+                  <input
+                    className={styles.selection}
+                    type="radio"
+                    value={i}
+                    name="selectedCoach"
+                    onChange={userData}
+                    checked={user.selectedCoach === i}
+                  />
+                  <p>
+                    {e.firstname} {e.lastname}
+                  </p>{" "}
+                </div>
+              );
+            })}
+            <div className={styles.radioContainer}>
+              <button onClick={handleShowForm}>+</button>
+              <p>Add new coach</p>
+            </div>
+          </section>
+          {showNewCoachForm && (
+            <section className={styles.calender}>
+              <Form />
+            </section>
+          )}
+        </>
+      )}
     </main>
-  )
+  );
 }

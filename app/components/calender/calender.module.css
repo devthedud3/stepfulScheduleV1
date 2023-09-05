@@ -1,0 +1,26 @@
+.dateContainer {
+  border: 1px solid #ccc;
+  padding: 1em;
+  width: 100%;
+  margin: 5px 0px;
+  border-radius: 10px;
+  box-shadow: -1px 11px 65px -25px rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+.dateActive {
+  border: 1px solid #ccc;
+  background-color: #b4e37b;
+  padding: 1em;
+  width: 100%;
+  margin: 5px 0px;
+  border-radius: 10px;
+  box-shadow: -1px 11px 65px -25px rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.dateContainer:hover {
+  background-color: #ccc;
+  transform: scale(1.1);
+}
