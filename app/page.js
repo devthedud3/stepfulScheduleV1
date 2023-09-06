@@ -10,7 +10,7 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [showNewCoachForm, setShowForm] = useState(false);
   const [user, setUser] = useState({
-    selected: "1",
+    selected: "0",
     selectedCoach: "0",
     selectedDate: ""
   });
